@@ -1,0 +1,24 @@
+{
+  "name": "questions-and-answers",
+  "version": "1.0.0",
+  "description": "API for product questions and answers for project Atelier",
+  "main": "api.js",
+  "scripts": {
+    "start": "nodemon api.js",
+    "test": "jest --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RPP28-SDC-Blueberry/questions-and-answers.git"
+  },
+  "author": "Kingsley Allen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RPP28-SDC-Blueberry/questions-and-answers/issues"
+  },
+  "homepage": "https://github.com/RPP28-SDC-Blueberry/questions-and-answers#readme",
+  "devDependencies": {
+    "express": "^4.17.1",
+    "jest": "^27.0.6"
+  }
+}
