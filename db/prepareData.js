@@ -182,6 +182,33 @@ async function dataTransform() {
           as: 'answers'
         }
       )
+      .project({
+        _id: 1,
+        productId: '$product_id',
+        body: 1,
+        askerName: '$asker_name',
+        askerEmail: '$asker_email',
+        helpful: 1,
+        reported: { $cond: { if: { $eq: [ "$reported", 0 ] }, then: false, else: true } },
+        createdDate: '$date_written',
+        answers: {
+          "$map": {
+            "input": "$answers",
+            "as": "a",
+            "in": {
+              "_id": "$$a._id",
+              "questionId": "$$a.question_id",
+              "body": "$$a.body",
+              "createdDate": "$$a.date_written",
+              "answererName": "$$a.answerer_name",
+              "answererEmail": "$$a.answerer_email",
+              "reported": { $cond: { if: { $eq: [ "$$a.reported", 0 ] }, then: false, else: true } },
+              "helpful": "$$a.helpful"
+            }
+          }
+        }
+      })
+
       console.log('\n' + 'lookup');
       console.log(docs[0]);
   } catch(error) {
