@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
-// define a schema
+// Define the schemas
+
 const schema = new mongoose.Schema({
   legacyId: Number,
   productId: Number,
@@ -21,7 +22,40 @@ const schema = new mongoose.Schema({
     createdDate: Date }]
 });
 
-// define first test row of data to insert
+const stagedQuestionSchema = new mongoose.Schema({
+  "id" : Number,
+  "product_id" : Number,
+  "body" :  String,
+  "date_written" : Number,
+  "asker_name" :  String,
+  "asker_email" :  String,
+  "reported" : Number,
+  "helpful" : Number
+},
+{ collection: 'staged_questions' });
+
+const stagedAnswerSchema = new mongoose.Schema({
+	"id" : Number,
+	"question_id" : Number,
+	"body" : String,
+	"date_written" : Date,
+	"answerer_name" : String,
+	"answerer_email" : String,
+	"reported" : Number,
+	"helpful" : Number
+},
+{ collection: 'staged_answers' });
+
+const stagedAnswersPhotoSchema = new mongoose.Schema({
+  "id" : Number,
+  "answer_id" : Number,
+  "url" : String
+},
+{ collection: 'staged_answers_photos' });
+
+
+// Define the test data
+
 const firstQuestionData = {
   "productId": 1,
   "body": "What fabric is the top made of?",
@@ -82,22 +116,78 @@ const firstQuestionData = {
   ]
 }
 
-// create a connection
+// Create the connection
 mongoose.connect('mongodb://localhost:27017/sdcqa', {useNewUrlParser: true, useUnifiedTopology: true})
   .catch(err => {
     console.error('Error connecting to mongodb:', err);
-  })
+  });
 
-// compile the model
+// Create the models
 const Question = mongoose.model('Question', schema);
+const stagedQuestions = mongoose.model('StagedQuestion', stagedQuestionSchema);
+const stagedAnswers = mongoose.model('StagedAnswer', stagedAnswerSchema);
+const stagedAnswersPhotos = mongoose.model('StagedAnswersPhoto', stagedAnswersPhotoSchema);
 
-// construct a document
-const firstQuestion = new Question(firstQuestionData);
 
-firstQuestion.save()
-  .then(resp => {
-    console.log('First document saved');
-  })
-  .catch(err => {
-    console.error('Error saving first document')
-  })
+async function dbInit() {
+
+  let data = null;
+
+  try {
+    await Question.deleteMany({});
+
+    // const firstQuestion = new Question(firstQuestionData);
+    // await firstQuestion.save();
+    // console.log('First document saved');
+
+    // data = await Question.findOne()
+    // console.log('\n' + 'Questions...');
+    // console.log(data);
+
+    // data = await stagedQuestions.findOne()
+    // console.log('\n' + 'stagedQuestions...');
+    // console.log(data);
+
+    // data = await stagedAnswers.findOne()
+    // console.log('\n' + 'stagedAnswers...');
+    // console.log(data);
+
+    // data = await stagedAnswersPhotos.findOne()
+    // console.log('\n' + 'stagedAnswersPhotos...');
+    // console.log(data);
+
+    // await Question.deleteMany({});
+
+  } catch(error) {
+    console.error('Error doing db stuff:', error);
+  }
+
+}
+
+dbInit();
+
+// AGGREGATION
+
+async function dataTransform() {
+
+  console.log('\n' + 'Working on aggregation...');
+  try {
+    const filter = { id: 1 };
+    let docs = await stagedQuestions.aggregate()
+      .match(filter)
+      .lookup(
+        {
+          from: 'staged_answers',
+          localField: 'id',
+          foreignField: 'question_id',
+          as: 'answers'
+        }
+      )
+      console.log('\n' + 'lookup');
+      console.log(docs[0]);
+  } catch(error) {
+    console.error('Problem:', error);
+  }
+}
+
+dataTransform();
