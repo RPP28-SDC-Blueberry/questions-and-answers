@@ -3,27 +3,27 @@ const mongoose = require('mongoose');
 // Define the schemas
 
 const schema = new mongoose.Schema({
-  legacyId: Number,
-  productId: Number,
+  // legacyId: Number,
+  productId: { type: [Number], index: true },
   body: String,
   askerName: String,
   askerEmail: String,
-  helpfulness: Number,
-  reported: Boolean,
+  helpful: Number,
+  reported: { type: [Boolean], index: true },
   createdDate: Date,
   answers: [{
-    legacyId: Number,
+    // legacyId: Number,
     body: String,
     answererName: String,
     answererEmail: String,
-    helpfulness: Number,
+    helpful: Number,
     reported: Boolean,
     photos: [String],
     createdDate: Date }]
 });
 
 const stagedQuestionSchema = new mongoose.Schema({
-  "id" : Number,
+  "id" : { type: [Number], index: true },
   "product_id" : Number,
   "body" :  String,
   "date_written" : Number,
@@ -36,7 +36,7 @@ const stagedQuestionSchema = new mongoose.Schema({
 
 const stagedAnswerSchema = new mongoose.Schema({
 	"id" : Number,
-	"question_id" : Number,
+	"question_id" : { type: [Number], index: true },
 	"body" : String,
 	"date_written" : Date,
 	"answerer_name" : String,
@@ -48,7 +48,7 @@ const stagedAnswerSchema = new mongoose.Schema({
 
 const stagedAnswersPhotoSchema = new mongoose.Schema({
   "id" : Number,
-  "answer_id" : Number,
+  "answer_id" : { type: [Number], index: true },
   "url" : String
 },
 { collection: 'staged_answers_photos' });
@@ -61,7 +61,7 @@ const firstQuestionData = {
   "body": "What fabric is the top made of?",
   "askerName": "yankeelover",
   "askerEmail": "first.last@gmail.com",
-  "helpfulness": 1,
+  "helpful": 1,
   "reported": false,
   "createdDate": 1595884714409,
   "answers": [
@@ -72,7 +72,7 @@ const firstQuestionData = {
       "answererEmail": "first.last@gmail.com",
       "reported": false,
       "photos": [],
-      "helpfulness": 5
+      "helpful": 5
     },
     {
       "body": "Its the best! Seriously magic fabric",
@@ -81,7 +81,7 @@ const firstQuestionData = {
       "answererEmail": "first.last@gmail.com",
       "reported": false,
       "photos": [],
-      "helpfulness": 7
+      "helpful": 7
     },
     {
       "body": "DONT BUY IT! It's bad for the environment",
@@ -93,7 +93,7 @@ const firstQuestionData = {
         "https://images.unsplash.com/photo-1530519729491-aea5b51d1ee1?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1651&q=80",
         "https://images.unsplash.com/photo-1500603720222-eb7a1f997356?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1653&q=80"
       ],
-      "helpfulness": 8
+      "helpful": 8
     },
     {
       "body": "Suede",
@@ -102,7 +102,7 @@ const firstQuestionData = {
       "answererEmail": "first.last@gmail.com",
       "reported": false,
       "photos": [],
-      "helpfulness": 7
+      "helpful": 7
     },
     {
       "body": "Supposedly suede, but I think its synthetic",
@@ -111,7 +111,7 @@ const firstQuestionData = {
       "answererEmail": "first.last@gmail.com",
       "reported": false,
       "photos": [],
-      "helpfulness": 3
+      "helpful": 3
     }
   ]
 }
@@ -127,7 +127,6 @@ const Question = mongoose.model('Question', schema);
 const stagedQuestions = mongoose.model('StagedQuestion', stagedQuestionSchema);
 const stagedAnswers = mongoose.model('StagedAnswer', stagedAnswerSchema);
 const stagedAnswersPhotos = mongoose.model('StagedAnswersPhoto', stagedAnswersPhotoSchema);
-
 
 async function dbInit() {
 
