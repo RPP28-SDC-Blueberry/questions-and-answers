@@ -19,6 +19,7 @@
   "homepage": "https://github.com/RPP28-SDC-Blueberry/questions-and-answers#readme",
   "devDependencies": {
     "express": "^4.17.1",
-    "jest": "^27.0.6"
+    "jest": "^27.0.6",
+    "mongoose": "^5.13.2"
   }
 }
