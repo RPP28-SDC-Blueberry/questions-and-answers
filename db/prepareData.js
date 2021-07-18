@@ -170,47 +170,43 @@ dbInit();
 async function dataTransform() {
 
   console.log('\n' + 'Working on aggregation...');
+
+  var stageMatchQuestions = {
+    "$match": { "id": 1 },
+  };
+
+  var joinAnswersStage = {
+    "$lookup": {
+      "from": "staged_answers",
+      "let": {
+        "question_id": "$id"
+      },
+      "pipeline": [
+        { "$match":
+          { "$expr": { "$eq": [ "$question_id", "$$question_id" ] } },
+        },
+        { "$lookup": {
+            "from": "staged_answers_photos",
+            "localField": "id",
+            "foreignField": "answer_id",
+            "as": "photos"
+        }},
+      ],
+      "as": "answers"
+    }
+  }
+
+  var pipeline = [
+    stageMatchQuestions,
+    joinAnswersStage,
+  ];
+
   try {
-    const filter = { id: 1 };
-    let docs = await stagedQuestions.aggregate()
-      .match(filter)
-      .lookup(
-        {
-          from: 'staged_answers',
-          localField: 'id',
-          foreignField: 'question_id',
-          as: 'answers'
-        }
-      )
-      .project({
-        _id: 1,
-        productId: '$product_id',
-        body: 1,
-        askerName: '$asker_name',
-        askerEmail: '$asker_email',
-        helpful: 1,
-        reported: { $cond: { if: { $eq: [ "$reported", 0 ] }, then: false, else: true } },
-        createdDate: '$date_written',
-        answers: {
-          "$map": {
-            "input": "$answers",
-            "as": "a",
-            "in": {
-              "_id": "$$a._id",
-              "questionId": "$$a.question_id",
-              "body": "$$a.body",
-              "createdDate": "$$a.date_written",
-              "answererName": "$$a.answerer_name",
-              "answererEmail": "$$a.answerer_email",
-              "reported": { $cond: { if: { $eq: [ "$$a.reported", 0 ] }, then: false, else: true } },
-              "helpful": "$$a.helpful"
-            }
-          }
-        }
-      })
+    let docs = await stagedQuestions.aggregate(pipeline);
 
       console.log('\n' + 'lookup');
       console.log(docs[0]);
+      console.log(docs[0].answers[1].photos);
   } catch(error) {
     console.error('Problem:', error);
   }
