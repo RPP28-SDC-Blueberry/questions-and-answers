@@ -175,22 +175,25 @@ async function dataTransform() {
     "$match": { "id": 1 },
   };
 
-  var joinAnswersStage = {
+  var stageJoinAnswers = {
     "$lookup": {
       "from": "staged_answers",
       "let": {
         "question_id": "$id"
       },
       "pipeline": [
-        { "$match":
-          { "$expr": { "$eq": [ "$question_id", "$$question_id" ] } },
-        },
+        { "$match": { "$expr": { "$eq": [ "$question_id", "$$question_id" ] }}},
+        { "$sort": { "id": 1 }},
         { "$lookup": {
             "from": "staged_answers_photos",
-            "localField": "id",
-            "foreignField": "answer_id",
+            "let": { "answer_id": "$id" },
+            "pipeline": [
+              { "$match": { "$expr": { "$eq": [ "$answer_id", "$$answer_id" ] }}},
+              { "$sort": { "id": 1 }}
+            ],
             "as": "photos"
-        }},
+          },
+        },
       ],
       "as": "answers"
     }
@@ -198,15 +201,16 @@ async function dataTransform() {
 
   var pipeline = [
     stageMatchQuestions,
-    joinAnswersStage,
+    stageJoinAnswers
   ];
 
   try {
     let docs = await stagedQuestions.aggregate(pipeline);
 
-      console.log('\n' + 'lookup');
+      console.log('\n' + 'Combined...');
       console.log(docs[0]);
-      console.log(docs[0].answers[1].photos);
+      console.log('\n' + 'Answer with photos...');
+      console.log(docs[0].answers[0]);
   } catch(error) {
     console.error('Problem:', error);
   }
