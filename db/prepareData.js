@@ -35,7 +35,7 @@ const stagedQuestionSchema = new mongoose.Schema({
 { collection: 'staged_questions' });
 
 const stagedAnswerSchema = new mongoose.Schema({
-	"id" : Number,
+	"id" : { type: [Number], index: true },
 	"question_id" : { type: [Number], index: true },
 	"body" : String,
 	"date_written" : Date,
@@ -47,7 +47,7 @@ const stagedAnswerSchema = new mongoose.Schema({
 { collection: 'staged_answers' });
 
 const stagedAnswersPhotoSchema = new mongoose.Schema({
-  "id" : Number,
+  "id" : { type: Number, index: true },
   "answer_id" : { type: [Number], index: true },
   "url" : String
 },
@@ -178,9 +178,7 @@ async function dataTransform() {
   var stageJoinAnswers = {
     "$lookup": {
       "from": "staged_answers",
-      "let": {
-        "question_id": "$id"
-      },
+      "let": { "question_id": "$id" },
       "pipeline": [
         { "$match": { "$expr": { "$eq": [ "$question_id", "$$question_id" ] }}},
         { "$sort": { "id": 1 }},
