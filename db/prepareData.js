@@ -166,49 +166,85 @@ async function dbInit() {
 dbInit();
 
 // AGGREGATION
+console.log('\n' + 'Working on aggregation...');
 
-async function dataTransform() {
+// Stage definitions
 
-  console.log('\n' + 'Working on aggregation...');
+var stageMatchQuestions = {
+  "$match": { "id": 1 },
+};
 
-  var stageMatchQuestions = {
-    "$match": { "id": 1 },
-  };
-
-  var stageJoinAnswers = {
-    "$lookup": {
-      "from": "staged_answers",
-      "let": { "question_id": "$id" },
-      "pipeline": [
-        { "$match": { "$expr": { "$eq": [ "$question_id", "$$question_id" ] }}},
-        { "$sort": { "id": 1 }},
-        { "$lookup": {
-            "from": "staged_answers_photos",
-            "let": { "answer_id": "$id" },
-            "pipeline": [
-              { "$match": { "$expr": { "$eq": [ "$answer_id", "$$answer_id" ] }}},
-              { "$sort": { "id": 1 }}
-            ],
-            "as": "photos"
-          },
+var stageJoinAnswers = {
+  "$lookup": {
+    "from": "staged_answers",
+    "let": { "question_id": "$id" },
+    "pipeline": [
+      { "$match": { "$expr": { "$eq": [ "$question_id", "$$question_id" ] }}},
+      { "$sort": { "id": 1 }},
+      { "$lookup": {
+          "from": "staged_answers_photos",
+          "let": { "answer_id": "$id" },
+          "pipeline": [
+            { "$match": { "$expr": { "$eq": [ "$answer_id", "$$answer_id" ] }}},
+            { "$sort": { "id": 1 }},
+            { "$group": {
+              _id: "$answer_id",
+              photos: { $push: "$url" }}
+            },
+          ],
+          "as": "photosDocument"
         },
-      ],
-      "as": "answers"
+      },
+      { "$set": { photos: { $arrayElemAt: [ "$photosDocument.photos", 0 ] }}}
+    ],
+    "as": "answers"
+  }
+}
+
+var stageProject = {
+  $project: {
+    productId: '$product_id',
+    body: 1,
+    askerName: '$asker_name',
+    askerEmail: '$asker_email',
+    helpful: 1,
+    reported: { $cond: { if: { $eq: [ '$reported', 0 ] }, then: false, else: true } },
+    createdDate: '$date_written',
+    answers: {
+      "$map": {
+        "input": "$answers",
+        "as": "a",
+        "in": {
+          "body": "$$a.body",
+          "createdDate": "$$a.date_written",
+          "answererName": "$$a.answerer_name",
+          "answererEmail": "$$a.answerer_email",
+          "reported": { $cond: { if: { $eq: [ "$$a.reported", 0 ] }, then: false, else: true } },
+          "helpful": "$$a.helpful",
+          "photos": "$$a.photos"
+        }
+      }
     }
   }
+}
 
-  var pipeline = [
-    stageMatchQuestions,
-    stageJoinAnswers
-  ];
+var pipeline = [
+  stageMatchQuestions,
+  stageJoinAnswers,
+  stageProject
+];
+
+async function dataTransform() {
 
   try {
     let docs = await stagedQuestions.aggregate(pipeline);
 
       console.log('\n' + 'Combined...');
       console.log(docs[0]);
-      console.log('\n' + 'Answer with photos...');
-      console.log(docs[0].answers[0]);
+      // console.log('\n' + 'Answer with photos...');
+      // console.log(docs[0].answers[0]);
+      console.log('\n' + 'Photos...');
+      console.log(docs[0].answers[0].photos);
   } catch(error) {
     console.error('Problem:', error);
   }
