@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 // Define the schemas
 
 const schema = new mongoose.Schema({
-  // legacyId: Number,
+  _id: mongoose.ObjectId,
   productId: { type: [Number], index: true },
   body: String,
   askerName: String,
@@ -12,7 +12,7 @@ const schema = new mongoose.Schema({
   reported: { type: [Boolean], index: true },
   createdDate: Date,
   answers: [{
-    // legacyId: Number,
+    _id: mongoose.ObjectId,
     body: String,
     answererName: String,
     answererEmail: String,
@@ -35,7 +35,7 @@ const stagedQuestionSchema = new mongoose.Schema({
 { collection: 'staged_questions' });
 
 const stagedAnswerSchema = new mongoose.Schema({
-	"id" : Number,
+	"id" : { type: [Number], index: true },
 	"question_id" : { type: [Number], index: true },
 	"body" : String,
 	"date_written" : Date,
@@ -47,7 +47,7 @@ const stagedAnswerSchema = new mongoose.Schema({
 { collection: 'staged_answers' });
 
 const stagedAnswersPhotoSchema = new mongoose.Schema({
-  "id" : Number,
+  "id" : { type: Number, index: true },
   "answer_id" : { type: [Number], index: true },
   "url" : String
 },
@@ -56,65 +56,65 @@ const stagedAnswersPhotoSchema = new mongoose.Schema({
 
 // Define the test data
 
-const firstQuestionData = {
-  "productId": 1,
-  "body": "What fabric is the top made of?",
-  "askerName": "yankeelover",
-  "askerEmail": "first.last@gmail.com",
-  "helpful": 1,
-  "reported": false,
-  "createdDate": 1595884714409,
-  "answers": [
-    {
-      "body": "Something pretty soft but I can't be sure",
-      "createdDate": 1599990560555,
-      "answererName": "metslover",
-      "answererEmail": "first.last@gmail.com",
-      "reported": false,
-      "photos": [],
-      "helpful": 5
-    },
-    {
-      "body": "Its the best! Seriously magic fabric",
-      "createdDate": 1614451524662,
-      "answererName": "metslover",
-      "answererEmail": "first.last@gmail.com",
-      "reported": false,
-      "photos": [],
-      "helpful": 7
-    },
-    {
-      "body": "DONT BUY IT! It's bad for the environment",
-      "createdDate": 1600552162548,
-      "answererName": "metslover",
-      "answererEmail": "first.last@gmail.com",
-      "reported": false,
-      "photos": [
-        "https://images.unsplash.com/photo-1530519729491-aea5b51d1ee1?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1651&q=80",
-        "https://images.unsplash.com/photo-1500603720222-eb7a1f997356?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1653&q=80"
-      ],
-      "helpful": 8
-    },
-    {
-      "body": "Suede",
-      "createdDate": 1618159891495,
-      "answererName": "metslover",
-      "answererEmail": "first.last@gmail.com",
-      "reported": false,
-      "photos": [],
-      "helpful": 7
-    },
-    {
-      "body": "Supposedly suede, but I think its synthetic",
-      "createdDate": 1600120432219,
-      "answererName": "metslover",
-      "answererEmail": "first.last@gmail.com",
-      "reported": false,
-      "photos": [],
-      "helpful": 3
-    }
-  ]
-}
+// const firstQuestionData = {
+//   "productId": 1,
+//   "body": "What fabric is the top made of?",
+//   "askerName": "yankeelover",
+//   "askerEmail": "first.last@gmail.com",
+//   "helpful": 1,
+//   "reported": false,
+//   "createdDate": 1595884714409,
+//   "answers": [
+//     {
+//       "body": "Something pretty soft but I can't be sure",
+//       "createdDate": 1599990560555,
+//       "answererName": "metslover",
+//       "answererEmail": "first.last@gmail.com",
+//       "reported": false,
+//       "photos": [],
+//       "helpful": 5
+//     },
+//     {
+//       "body": "Its the best! Seriously magic fabric",
+//       "createdDate": 1614451524662,
+//       "answererName": "metslover",
+//       "answererEmail": "first.last@gmail.com",
+//       "reported": false,
+//       "photos": [],
+//       "helpful": 7
+//     },
+//     {
+//       "body": "DONT BUY IT! It's bad for the environment",
+//       "createdDate": 1600552162548,
+//       "answererName": "metslover",
+//       "answererEmail": "first.last@gmail.com",
+//       "reported": false,
+//       "photos": [
+//         "https://images.unsplash.com/photo-1530519729491-aea5b51d1ee1?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1651&q=80",
+//         "https://images.unsplash.com/photo-1500603720222-eb7a1f997356?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1653&q=80"
+//       ],
+//       "helpful": 8
+//     },
+//     {
+//       "body": "Suede",
+//       "createdDate": 1618159891495,
+//       "answererName": "metslover",
+//       "answererEmail": "first.last@gmail.com",
+//       "reported": false,
+//       "photos": [],
+//       "helpful": 7
+//     },
+//     {
+//       "body": "Supposedly suede, but I think its synthetic",
+//       "createdDate": 1600120432219,
+//       "answererName": "metslover",
+//       "answererEmail": "first.last@gmail.com",
+//       "reported": false,
+//       "photos": [],
+//       "helpful": 3
+//     }
+//   ]
+// }
 
 // Create the connection
 mongoose.connect('mongodb://localhost:27017/sdcqa', {useNewUrlParser: true, useUnifiedTopology: true})
@@ -163,57 +163,106 @@ async function dbInit() {
 
 }
 
-dbInit();
+
 
 // AGGREGATION
+console.log('\n' + 'Working on aggregation...');
+
+// Stage definitions
+
+var stageMatchQuestions = {
+  "$match": { "id": { $lte: 500 } },
+};
+
+var stageJoinAnswers = {
+  "$lookup": {
+    "from": "staged_answers",
+    "let": { "question_id": "$id" },
+    "pipeline": [
+      { "$match": { "$expr": { "$eq": [ "$question_id", "$$question_id" ] }}},
+      { "$sort": { "id": 1 }},
+      { "$lookup": {
+          "from": "staged_answers_photos",
+          "let": { "answer_id": "$id" },
+          "pipeline": [
+            { "$match": { "$expr": { "$eq": [ "$answer_id", "$$answer_id" ] }}},
+            { "$sort": { "id": 1 }},
+            { "$group": {
+              "_id": "$answer_id",
+              "photos": { "$push": "$url" }}
+            },
+          ],
+          // "as": "photos"
+          "as": "photosDocument"
+        },
+      },
+      { "$set": {
+        photos: {
+          $cond: {
+            if: { $eq: [ { $size: "$photosDocument.photos" }, 0 ] },
+            then: [],
+            else: { $arrayElemAt: [ "$photosDocument.photos", 0 ] }
+          }
+        }
+      }}
+    ],
+    "as": "answers"
+  },
+}
+
+var stageProject = {
+  $project: {
+    productId: '$product_id',
+    body: 1,
+    askerName: '$asker_name',
+    askerEmail: '$asker_email',
+    helpful: 1,
+    reported: { $cond: { if: { $eq: [ '$reported', 0 ] }, then: false, else: true } },
+    createdDate: { $toDate: "$date_written" },
+    answers: {
+      "$map": {
+        "input": "$answers",
+        "as": "a",
+        "in": {
+          "_id": "$$a._id",
+          "body": "$$a.body",
+          "createdDate": { $toDate: "$$a.date_written" },
+          "answererName": "$$a.answerer_name",
+          "answererEmail": "$$a.answerer_email",
+          "reported": { $cond: { if: { $eq: [ "$$a.reported", 0 ] }, then: false, else: true } },
+          "helpful": "$$a.helpful",
+          "photos": "$$a.photos"
+        }
+      }
+    }
+  }
+}
+
+var stageOut = { $out: "questions" }
+
+var pipeline = [
+  stageMatchQuestions,
+  stageJoinAnswers,
+  stageProject,
+  stageOut
+];
 
 async function dataTransform() {
 
-  console.log('\n' + 'Working on aggregation...');
   try {
-    const filter = { id: 1 };
-    let docs = await stagedQuestions.aggregate()
-      .match(filter)
-      .lookup(
-        {
-          from: 'staged_answers',
-          localField: 'id',
-          foreignField: 'question_id',
-          as: 'answers'
-        }
-      )
-      .project({
-        _id: 1,
-        productId: '$product_id',
-        body: 1,
-        askerName: '$asker_name',
-        askerEmail: '$asker_email',
-        helpful: 1,
-        reported: { $cond: { if: { $eq: [ "$reported", 0 ] }, then: false, else: true } },
-        createdDate: '$date_written',
-        answers: {
-          "$map": {
-            "input": "$answers",
-            "as": "a",
-            "in": {
-              "_id": "$$a._id",
-              "questionId": "$$a.question_id",
-              "body": "$$a.body",
-              "createdDate": "$$a.date_written",
-              "answererName": "$$a.answerer_name",
-              "answererEmail": "$$a.answerer_email",
-              "reported": { $cond: { if: { $eq: [ "$$a.reported", 0 ] }, then: false, else: true } },
-              "helpful": "$$a.helpful"
-            }
-          }
-        }
-      })
+    let docs = await stagedQuestions.aggregate(pipeline);
 
-      console.log('\n' + 'lookup');
-      console.log(docs[0]);
+      console.log('\n' + 'Combined...');
+      console.log('done');
+      // console.log('\n' + 'Answer with photos...');
+      // console.log(docs[0].answers[0]);
+      // console.log('\n' + 'Photos...');
+      // console.log(docs[0].answers[0].photos);
   } catch(error) {
     console.error('Problem:', error);
   }
 }
 
+
+dbInit();
 dataTransform();
