@@ -171,7 +171,7 @@ console.log('\n' + 'Working on aggregation...');
 // Stage definitions
 
 var stageMatchQuestions = {
-  "$match": { "id": { $lte: 500 } },
+  "$match": { "id": { $lte: 50000 } },
 };
 
 var stageJoinAnswers = {
@@ -241,7 +241,7 @@ var stageProject = {
 var stageOut = { $out: "questions" }
 
 var pipeline = [
-  stageMatchQuestions,
+  // stageMatchQuestions,
   stageJoinAnswers,
   stageProject,
   stageOut
@@ -264,5 +264,5 @@ async function dataTransform() {
 }
 
 
-dbInit();
-dataTransform();
+// dbInit();
+// dataTransform();
