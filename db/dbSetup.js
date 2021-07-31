@@ -76,8 +76,8 @@ console.log('\n' + 'Working on aggregation...');
 // Stage definitions
 
 var stageMatchQuestions = {
-  // "$match": { "id": { $lte: 5000 } },
-  // "$match": { id: 1 }
+  // "$match": { "id": { $lte: 5 } },
+  "$match": { id: 1 }
 };
 
 var stageJoinAnswers = {
@@ -88,32 +88,45 @@ var stageJoinAnswers = {
       { "$match": { "$expr": { "$eq": [ "$question_id", "$$question_id" ] }}},
       { "$sort": { "id": 1 }},
       { "$lookup": {
-          "from": "staged_answers_photos",
-          "let": { "answer_id": "$id" },
-          "pipeline": [
-            { "$match": { "$expr": { "$eq": [ "$answer_id", "$$answer_id" ] }}},
-            { "$sort": { "id": 1 }},
-            { "$group": {
-              "_id": "$answer_id",
-              "photos": { "$push": "$url" }}
-            },
-          ],
-          "as": "photosDocument"
-        },
-      },
-      { "$set": {
-        photos: {
-          $cond: {
-            if: { $eq: [ { $size: "$photosDocument.photos" }, 0 ] },
-            then: [],
-            else: { $arrayElemAt: [ "$photosDocument.photos", 0 ] }
-          }
-        }
-      }}
+        "from": "staged_answers_photos",
+        "let": { "answer_id": "$id" },
+        "pipeline": [
+          { "$match": { "$expr": { "$eq": [ "$answer_id", "$$answer_id" ] }}},
+          { "$sort": { "id": 1 }},
+          { "$group": {
+            "_id": "$answer_id",
+            "photos": { "$push": "$url" }}
+          },
+        ],
+        "as": "photos"
+      }},
     ],
     "as": "answers"
   },
 }
+      // { "$lookup": {
+      //     "from": "staged_answers_photos",
+      //     "let": { "answer_id": "$id" },
+      //     "pipeline": [
+      //       { "$match": { "$expr": { "$eq": [ "$answer_id", "$$answer_id" ] }}},
+      //       { "$sort": { "id": 1 }},
+      //       { "$group": {
+      //         "_id": "$answer_id",
+      //         "photos": { "$push": "$url" }}
+      //       },
+      //     ],
+      //     "as": "photosDocumentGrouped"
+      //   },
+      // },
+      // { "$set": {
+      //   photoUrls: {
+      //     $cond: {
+      //       if: { $eq: [ { $size: "$photosDocumentGrouped.photos" }, 0 ] },
+      //       then: [],
+      //       else: { $arrayElemAt: [ "$photosDocumentGrouped.photos", 0 ] }
+      //     }
+      //   }
+      // }}
 
 var stageProject = {
   $project: {
@@ -125,17 +138,18 @@ var stageProject = {
     question_helpfulness: '$helpful',
     reported: { $cond: { if: { $eq: [ '$reported', 0 ] }, then: false, else: true } },
     answers: {
-      "$map": {
-        "input": "$answers",
-        "as": "a",
-        "in": {
-          "_id": "$$a._id",
-          "body": "$$a.body",
-          "date": { $toDate: "$$a.date_written" },
-          "answerer_name": "$$a.answerer_name",
-          "answerer_email": "$$a.answerer_email",
-          "helpfulness": "$$a.helpful",
-          "photos": "$$a.photos",
+      $map: {
+        input: "$answers",
+        as: "a",
+        in: {
+          _id: "$$a._id",
+          body: "$$a.body",
+          date: { $toDate: "$$a.date_written" },
+          answerer_name: "$$a.answerer_name",
+          answerer_email: "$$a.answerer_email",
+          helpfulness: "$$a.helpful",
+          photos: "$a.photos",
+          // photoUrls: "$aa.photoUrls",
           "reported": { $cond: { if: { $eq: [ "$$a.reported", 0 ] }, then: false, else: true } }
         }
       }
@@ -146,7 +160,7 @@ var stageProject = {
 var stageOut = { $out: "questions" }
 
 var pipeline = [
-  // stageMatchQuestions,
+  stageMatchQuestions,
   stageJoinAnswers,
   stageProject,
   stageOut
@@ -163,7 +177,7 @@ async function dataTransform() {
 }
 
 // commented out - need to be deliberate about running this...
-// dataTransform();
+dataTransform();
 
 
 
