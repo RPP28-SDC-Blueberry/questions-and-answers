@@ -108,7 +108,7 @@ const Question = mongoose.model('Question', questionSchema);
 
 const photoPipeline = [
 
-  { $match: { answer_id: { $lte: 50000 } } },
+  // { $match: { answer_id: { $lte: 50000 } } },
 
   { $sort: { answer_id: 1, id: 1 } },
 
@@ -124,7 +124,7 @@ const photoPipeline = [
 
 const answerPipeline = [
 
-  { $match: { id: { $lte: 50000 } } },
+  // { $match: { id: { $lte: 50000 } } },
 
   { $sort: { question_id: 1, id: 1 } },
 
@@ -189,7 +189,7 @@ const answerPipeline = [
 
 const questionPipeline = [
 
-  { $match: { id: { $lte: 50000 } } },
+  // { $match: { id: { $lte: 50000 } } },
 
   { $sort: { produce_id: 1, id: 1 } },
 
@@ -229,15 +229,15 @@ async function transformData() {
 
     console.log('\n' + 'Aggregating...');
 
-    let photos = await importedPhotos.aggregate(photoPipeline);
+    let photos = await importedPhotos.aggregate(photoPipeline).allowDiskUse(true);
     console.log('\n' + 'Working on photos...');
     console.log('Done with photos!');
 
-    let answers = await importedAnswers.aggregate(answerPipeline);
+    let answers = await importedAnswers.aggregate(answerPipeline).allowDiskUse(true);
     console.log('\n' + 'Working on answers...');
     console.log('Done with answers!');
 
-    let questions = await importedQuestions.aggregate(questionPipeline);
+    let questions = await importedQuestions.aggregate(questionPipeline).allowDiskUse(true);
     console.log('\n' + 'Working on questions...');
     console.log('Done with questions!');
 

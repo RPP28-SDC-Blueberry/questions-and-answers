@@ -7,14 +7,19 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 // list questions
-app.get('/qa/questions', (req, res) => {
-  db.listQuestions(req.query.product_id, Number(req.query.page), Number(req.query.count))
-    .then(results => {
-      res.send(results);
-    })
-    .catch(err => {
-      res.send(err);
-    })
+app.get('/qa/questions', async (req, res) => {
+  try {
+    let productId = req.query.product_id;
+    let pageNumber = Number(req.query.page);
+    let itemsPerPage = Number(req.query.count);
+    const productQuestions = await db.listQuestions(productId, pageNumber, itemsPerPage);
+    let responseBody = {};
+    responseBody.product_id = productId;
+    responseBody.results = productQuestions;
+    res.send(responseBody);
+  } catch (error) {
+    res.send(err);
+  }
 });
 
 // list answers
