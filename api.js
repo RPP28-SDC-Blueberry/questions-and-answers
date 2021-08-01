@@ -60,4 +60,20 @@ app.put('/qa/answers/:answer_id/report', (req, res) => {
   res.send('PUT /qa/answers/:answer_id/report');
 });
 
+// Invalid route yields a 404
+app.use(function (req, res, next) {
+  res.status(404).send("Resource not found")
+})
+
+// Error handler
+app.use((error, req, res, next) => {
+  console.error(err.stack)
+  res.status(error.status || 500)
+  res.json({
+    status: error.status,
+    message: error.message,
+    stack: error.stack
+  })
+})
+
 app.listen(3000)
