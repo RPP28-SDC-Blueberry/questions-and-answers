@@ -20,13 +20,6 @@ const answerSchema = new mongoose.Schema({
   reported: Boolean
 });
 
-answerSchema.virtual('answer_id_new').get(function() {
-  return this._id;
-});
-
-// answerSchema.set('toObject', { virtuals: true });
-answerSchema.set('toJSON', { virtuals: true });
-
 const questionSchema = new mongoose.Schema({
   product_id: { type: String, index: true },
   question_body: String,
@@ -39,7 +32,6 @@ const questionSchema = new mongoose.Schema({
 });
 
 const Question = mongoose.model('Question', questionSchema);
-
 
 async function listQuestions(product_id, page, count) {
 
@@ -97,7 +89,6 @@ async function listAnswers(question_id, page, count) {
       reported: false
     }},
 
-    // { $unwind: "$answers" },
     { $unwind: { path: "$answers", preserveNullAndEmptyArrays: true } },
 
     { $replaceRoot: {
@@ -121,5 +112,34 @@ async function listAnswers(question_id, page, count) {
 
 }
 
-exports.listQuestions = listQuestions;
-exports.listAnswers = listAnswers;
+async function markQuestionHelpful(question_id) {
+  try {
+    question_id = mongoose.Types.ObjectId(question_id);
+    const foundQuestion = await Question.findOne({ _id: question_id });
+    foundQuestion.question_helpfulness = foundQuestion.question_helpfulness + 1;
+    const result = await foundQuestion.save();
+    return;
+  } catch (error) {
+    return error;
+  }
+}
+
+async function reportQuestion(question_id) {
+  try {
+    question_id = mongoose.Types.ObjectId(question_id);
+    const foundQuestion = await Question.findOne({ _id: question_id });
+    foundQuestion.reported = true;
+    const result = await foundQuestion.save();
+    return;
+  } catch (error) {
+    return error;
+  }
+}
+
+
+module.exports = {
+  listQuestions,
+  listAnswers,
+  markQuestionHelpful,
+  reportQuestion,
+};

@@ -7,7 +7,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 // list questions
-app.get('/qa/questions', async (req, res) => {
+app.get('/qa/questions', async (req, res, next) => {
   try {
     let productId = req.query.product_id;
     let pageNumber = Number(req.query.page);
@@ -23,7 +23,7 @@ app.get('/qa/questions', async (req, res) => {
 });
 
 // list answers
-app.get('/qa/questions/:question_id/answers', async (req, res) => {
+app.get('/qa/questions/:question_id/answers', async (req, res, next) => {
   try {
     let questionId = req.params.question_id;
     let pageNumber = Number(req.query.page);
@@ -41,33 +41,45 @@ app.get('/qa/questions/:question_id/answers', async (req, res) => {
 });
 
 // add a question
-app.post('/qa/questions', (req, res) => {
+app.post('/qa/questions', async (req, res, next) => {
   let question = req.body;
   res.send(req.body);
 });
 
 // add an answer
-app.post('/qa/questions/:question_id/answers', async (req, res) => {
+app.post('/qa/questions/:question_id/answers', async (req, res, next) => {
   res.send('POST /qa/questions/:question_id/answers');
 });
 
 // mark question as helpful
-app.put('/qa/questions/:question_id/helpful', async (req, res) => {
-  res.send('PUT /qa/questions/:question_id/helpful');
+app.put('/qa/questions/:question_id/helpful', async (req, res, next) => {
+  try {
+    let questionId = req.params.question_id;
+    const updateResponse = await db.markQuestionHelpful(questionId);
+    res.status(204).send();
+  } catch (error) {
+    next(error)
+  }
 });
 
 // report question
-app.put('/qa/questions/:question_id/report', async (req, res) => {
-  res.send('PUT /qa/questions/:question_id/report');
+app.put('/qa/questions/:question_id/report', async (req, res, next) => {
+  try {
+    let questionId = req.params.question_id;
+    const updateResponse = await db.reportQuestion(questionId);
+    res.status(204).send();
+  } catch (error) {
+    next(error)
+  }
 });
 
 // mark answer as helpful
-app.put('/qa/answers/:answer_id/helpful', async (req, res) => {
+app.put('/qa/answers/:answer_id/helpful', async (req, res, next) => {
   res.send('PUT /qa/answers/:answer_id/helpful');
 });
 
 // report answer
-app.put('/qa/answers/:answer_id/report', async (req, res) => {
+app.put('/qa/answers/:answer_id/report', async (req, res, next) => {
   res.send('PUT /qa/answers/:answer_id/report');
 });
 
@@ -78,7 +90,7 @@ app.use(function (req, res, next) {
 
 // Error handler
 app.use((error, req, res, next) => {
-  console.error(err.stack)
+  console.error(error.stack)
   res.status(error.status || 500)
   res.json({
     status: error.status,
