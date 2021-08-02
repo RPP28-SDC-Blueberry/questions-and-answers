@@ -18,15 +18,26 @@ app.get('/qa/questions', async (req, res) => {
     responseBody.results = productQuestions;
     res.send(responseBody);
   } catch (error) {
-    res.send(err);
+    next(err)
   }
 });
 
 // list answers
-app.get('/qa/questions/:question_id/answers', (req, res) => {
-  // product_id, page, count
-  let questionId = req.params.question_id;
-  res.send(`GET /qa/questions/${questionId}/answers`);
+app.get('/qa/questions/:question_id/answers', async (req, res) => {
+  try {
+    let questionId = req.params.question_id;
+    let pageNumber = Number(req.query.page);
+    let itemsPerPage = Number(req.query.count);
+    const questionAnswers = await db.listAnswers(questionId, pageNumber, itemsPerPage);
+    let responseBody = {};
+    responseBody.question = questionId;
+    responseBody.page = pageNumber;
+    responseBody.count = itemsPerPage;  // Matches the Atelier API behavior
+    responseBody.results = questionAnswers;
+    res.send(responseBody);
+  } catch (error) {
+    next(err)
+  }
 });
 
 // add a question
@@ -36,27 +47,27 @@ app.post('/qa/questions', (req, res) => {
 });
 
 // add an answer
-app.post('/qa/questions/:question_id/answers', (req, res) => {
+app.post('/qa/questions/:question_id/answers', async (req, res) => {
   res.send('POST /qa/questions/:question_id/answers');
 });
 
 // mark question as helpful
-app.put('/qa/questions/:question_id/helpful', (req, res) => {
+app.put('/qa/questions/:question_id/helpful', async (req, res) => {
   res.send('PUT /qa/questions/:question_id/helpful');
 });
 
 // report question
-app.put('/qa/questions/:question_id/report', (req, res) => {
+app.put('/qa/questions/:question_id/report', async (req, res) => {
   res.send('PUT /qa/questions/:question_id/report');
 });
 
 // mark answer as helpful
-app.put('/qa/answers/:answer_id/helpful', (req, res) => {
+app.put('/qa/answers/:answer_id/helpful', async (req, res) => {
   res.send('PUT /qa/answers/:answer_id/helpful');
 });
 
 // report answer
-app.put('/qa/answers/:answer_id/report', (req, res) => {
+app.put('/qa/answers/:answer_id/report', async (req, res) => {
   res.send('PUT /qa/answers/:answer_id/report');
 });
 

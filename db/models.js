@@ -20,6 +20,13 @@ const answerSchema = new mongoose.Schema({
   reported: Boolean
 });
 
+answerSchema.virtual('answer_id_new').get(function() {
+  return this._id;
+});
+
+// answerSchema.set('toObject', { virtuals: true });
+answerSchema.set('toJSON', { virtuals: true });
+
 const questionSchema = new mongoose.Schema({
   product_id: { type: String, index: true },
   question_body: String,
@@ -29,10 +36,6 @@ const questionSchema = new mongoose.Schema({
   question_helpfulness: Number,
   reported: { type: Boolean, index: true },
   answers: [answerSchema]
-});
-
-questionSchema.virtual('question_id').get(function() {
-  return this._id;
 });
 
 const Question = mongoose.model('Question', questionSchema);
@@ -75,16 +78,42 @@ async function listQuestions(product_id, page, count) {
         }
       }
     }}
-
-  ]
+  ];
 
   try {
     let docs = await Question.aggregate(pipeline);
     return docs;
   } catch (error) {
-    console.error(error);
+    return error;
   }
+}
 
+async function listAnswers(question_id, page, count) {
+
+  try {
+    const filter = {
+      reported: false,
+      _id: question_id
+    };
+
+    const returnFields = {
+      "answers._id": 1,
+      "answers.body": 1,
+      "answers.date": 1,
+      "answers.answerer_name": 1,
+      "answers.helpfulness": 1,
+      "answers.photos": 1
+    }
+
+    let doc = await Question
+      .findOne(filter, returnFields)
+      .exec()
+    return doc.get('answers');
+
+  } catch (error) {
+    return error;
+  }
 }
 
 exports.listQuestions = listQuestions;
+exports.listAnswers = listAnswers;
