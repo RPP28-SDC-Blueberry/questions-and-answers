@@ -18,7 +18,7 @@ app.get('/qa/questions', async (req, res) => {
     responseBody.results = productQuestions;
     res.send(responseBody);
   } catch (error) {
-    next(err)
+    next(error)
   }
 });
 
@@ -36,7 +36,7 @@ app.get('/qa/questions/:question_id/answers', async (req, res) => {
     responseBody.results = questionAnswers;
     res.send(responseBody);
   } catch (error) {
-    next(err)
+    next(error)
   }
 });
 

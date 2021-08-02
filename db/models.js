@@ -90,29 +90,35 @@ async function listQuestions(product_id, page, count) {
 
 async function listAnswers(question_id, page, count) {
 
+  const pipeline = [
+
+    { $match: {
+      _id: mongoose.Types.ObjectId(question_id),
+      reported: false
+    }},
+
+    // { $unwind: "$answers" },
+    { $unwind: { path: "$answers", preserveNullAndEmptyArrays: true } },
+
+    { $replaceRoot: {
+      newRoot: {
+        answer_id: "$answers._id",
+        body: "$answers.body",
+        date: "$answers.date",
+        answerer_name: "$answers.answerer_name",
+        helpfulness: "$answers.helpfulness",
+        photos: "$answers.photoUrls"
+      }
+    }}
+  ];
+
   try {
-    const filter = {
-      reported: false,
-      _id: question_id
-    };
-
-    const returnFields = {
-      "answers._id": 1,
-      "answers.body": 1,
-      "answers.date": 1,
-      "answers.answerer_name": 1,
-      "answers.helpfulness": 1,
-      "answers.photos": 1
-    }
-
-    let doc = await Question
-      .findOne(filter, returnFields)
-      .exec()
-    return doc.get('answers');
-
+    let docs = await Question.aggregate(pipeline);
+    return docs;
   } catch (error) {
     return error;
   }
+
 }
 
 exports.listQuestions = listQuestions;
