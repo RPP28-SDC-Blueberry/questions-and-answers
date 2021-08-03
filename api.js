@@ -42,8 +42,13 @@ app.get('/qa/questions/:question_id/answers', async (req, res, next) => {
 
 // add a question
 app.post('/qa/questions', async (req, res, next) => {
-  let question = req.body;
-  res.send(req.body);
+  try {
+    let questionDetails = req.body;
+    const newQuestion = await db.addQuestion(questionDetails);
+    res.status(201).send();
+  } catch (error) {
+    next(error)
+  }
 });
 
 // add an answer

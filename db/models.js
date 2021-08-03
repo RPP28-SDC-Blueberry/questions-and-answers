@@ -1,6 +1,12 @@
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb://localhost:27017/sdcqa', {useNewUrlParser: true, useUnifiedTopology: true})
+const mongooseOptions = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useCreateIndex: true ,
+};
+
+mongoose.connect('mongodb://localhost:27017/sdcqa', mongooseOptions)
   .catch(err => {
     console.error('Error connecting to mongodb:', err);
   });
@@ -17,7 +23,7 @@ const answerSchema = new mongoose.Schema({
   helpfulness: Number,
   photos: [photoSchema],
   photoUrls: [String],
-  reported: Boolean
+  reported: { type: Boolean, index: true }
 });
 
 const questionSchema = new mongoose.Schema({
@@ -112,6 +118,21 @@ async function listAnswers(question_id, page, count) {
 
 }
 
+async function addQuestion(questionDetails) {
+  // body, name, email,
+  try {
+    question_id = mongoose.Types.ObjectId(question_id);
+    const foundQuestion = await Question.findOne({ _id: question_id });
+    foundQuestion.question_helpfulness = foundQuestion.question_helpfulness + 1;
+    const result = await foundQuestion.save();
+    return;
+  } catch (error) {
+    return error;
+  }
+}
+
+
+
 async function markQuestionHelpful(question_id) {
   try {
     question_id = mongoose.Types.ObjectId(question_id);
@@ -136,10 +157,11 @@ async function reportQuestion(question_id) {
   }
 }
 
-
 module.exports = {
   listQuestions,
   listAnswers,
+  addQuestion,
   markQuestionHelpful,
   reportQuestion,
+  addQuestion,
 };
