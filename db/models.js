@@ -38,6 +38,8 @@ const questionSchema = new mongoose.Schema({
 });
 
 const Question = mongoose.model('Question', questionSchema);
+const Answer = mongoose.model('Answer', answerSchema);
+const Photo = mongoose.model('Photo', photoSchema);
 
 async function listQuestions(product_id, page, count) {
 
@@ -133,6 +135,32 @@ async function addQuestion(questionDetails) {
   }
 }
 
+async function addAnswer(questionId, answerDetails) {
+  try {
+    questionId = mongoose.Types.ObjectId(questionId);
+    const parentQuestion = await Question.findById(questionId);
+    const newAnswer = new Answer ({
+      body: answerDetails.body,
+      answerer_name: answerDetails.name,
+      answerer_email: answerDetails.email
+    });
+
+    answerDetails.photos.forEach(url => {
+      const newPhoto = new Photo ({
+        url: url
+      })
+      newAnswer.photos.push(newPhoto);
+      newAnswer.photoUrls.push(url);
+    });
+
+    parentQuestion.answers.push(newAnswer);
+    const result = await parentQuestion.save();
+    return;
+  } catch (error) {
+    return error;
+  }
+}
+
 async function markQuestionHelpful(question_id) {
   try {
     question_id = mongoose.Types.ObjectId(question_id);
@@ -161,7 +189,7 @@ module.exports = {
   listQuestions,
   listAnswers,
   addQuestion,
+  addAnswer,
   markQuestionHelpful,
   reportQuestion,
-  addQuestion,
 };

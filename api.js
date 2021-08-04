@@ -53,7 +53,14 @@ app.post('/qa/questions', async (req, res, next) => {
 
 // add an answer
 app.post('/qa/questions/:question_id/answers', async (req, res, next) => {
-  res.send('POST /qa/questions/:question_id/answers');
+  try {
+    let questionId = req.params.question_id;
+    let answerDetails = req.body;
+    const newAnswer = await db.addAnswer(questionId, answerDetails);
+    res.status(201).send();
+  } catch (error) {
+    next(error)
+  }
 });
 
 // mark question as helpful
