@@ -17,23 +17,23 @@ const photoSchema = new mongoose.Schema({
 
 const answerSchema = new mongoose.Schema({
   body: String,
-  date: Date,
+  date: { type: Date, default: Date.now },
   answerer_name: String,
   answerer_email: String,
-  helpfulness: Number,
+  helpfulness: {type: Number, default: 0 },
   photos: [photoSchema],
   photoUrls: [String],
-  reported: { type: Boolean, index: true }
+  reported: { type: Boolean, index: true, default: false }
 });
 
 const questionSchema = new mongoose.Schema({
   product_id: { type: String, index: true },
   question_body: String,
-  question_date: Date,
+  question_date: { type: Date, default: Date.now },
   asker_name: String,
   asker_email: String,
-  question_helpfulness: Number,
-  reported: { type: Boolean, index: true },
+  question_helpfulness: {type: Number, default: 0 },
+  reported: { type: Boolean, index: true, default: false },
   answers: [answerSchema]
 });
 
@@ -119,19 +119,19 @@ async function listAnswers(question_id, page, count) {
 }
 
 async function addQuestion(questionDetails) {
-  // body, name, email,
   try {
-    question_id = mongoose.Types.ObjectId(question_id);
-    const foundQuestion = await Question.findOne({ _id: question_id });
-    foundQuestion.question_helpfulness = foundQuestion.question_helpfulness + 1;
-    const result = await foundQuestion.save();
+    const newQuestion = new Question ({
+      product_id: questionDetails.product_id,
+      question_body: questionDetails.body,
+      asker_name: questionDetails.name,
+      asker_email: questionDetails.email,
+    });
+    const result = await newQuestion.save();
     return;
   } catch (error) {
     return error;
   }
 }
-
-
 
 async function markQuestionHelpful(question_id) {
   try {
