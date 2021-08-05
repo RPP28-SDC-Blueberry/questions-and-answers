@@ -87,12 +87,24 @@ app.put('/qa/questions/:question_id/report', async (req, res, next) => {
 
 // mark answer as helpful
 app.put('/qa/answers/:answer_id/helpful', async (req, res, next) => {
-  res.send('PUT /qa/answers/:answer_id/helpful');
+  try {
+    let answerId = req.params.answer_id;
+    const updateResponse = await db.markAnswerHelpful(answerId);
+    res.status(204).send();
+  } catch (error) {
+    next(error)
+  }
 });
 
 // report answer
 app.put('/qa/answers/:answer_id/report', async (req, res, next) => {
-  res.send('PUT /qa/answers/:answer_id/report');
+  try {
+    let answerId = req.params.answer_id;
+    const updateResponse = await db.reportAnswer(answerId);
+    res.status(204).send();
+  } catch (error) {
+    next(error)
+  }
 });
 
 // Invalid route yields a 404

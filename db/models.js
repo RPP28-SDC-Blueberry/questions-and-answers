@@ -38,8 +38,8 @@ const questionSchema = new mongoose.Schema({
 });
 
 const Question = mongoose.model('Question', questionSchema);
-const Answer = mongoose.model('Answer', answerSchema);
-const Photo = mongoose.model('Photo', photoSchema);
+// const Answer = mongoose.model('Answer', answerSchema);
+// const Photo = mongoose.model('Photo', photoSchema);
 
 async function listQuestions(product_id, page, count) {
 
@@ -137,18 +137,20 @@ async function addQuestion(questionDetails) {
 
 async function addAnswer(questionId, answerDetails) {
   try {
+
     questionId = mongoose.Types.ObjectId(questionId);
     const parentQuestion = await Question.findById(questionId);
-    const newAnswer = new Answer ({
+
+    const newAnswer = parentQuestion.answers.create({
       body: answerDetails.body,
       answerer_name: answerDetails.name,
       answerer_email: answerDetails.email
     });
 
     answerDetails.photos.forEach(url => {
-      const newPhoto = new Photo ({
+      const newPhoto = newAnswer.photos.create({
         url: url
-      })
+      });
       newAnswer.photos.push(newPhoto);
       newAnswer.photoUrls.push(url);
     });
@@ -161,10 +163,10 @@ async function addAnswer(questionId, answerDetails) {
   }
 }
 
-async function markQuestionHelpful(question_id) {
+async function markQuestionHelpful(questionId) {
   try {
-    question_id = mongoose.Types.ObjectId(question_id);
-    const foundQuestion = await Question.findOne({ _id: question_id });
+    questionId = mongoose.Types.ObjectId(questionId);
+    const foundQuestion = await Question.findOne({ _id: questionId });
     foundQuestion.question_helpfulness = foundQuestion.question_helpfulness + 1;
     const result = await foundQuestion.save();
     return;
@@ -173,12 +175,36 @@ async function markQuestionHelpful(question_id) {
   }
 }
 
-async function reportQuestion(question_id) {
+async function reportQuestion(questionId) {
   try {
-    question_id = mongoose.Types.ObjectId(question_id);
-    const foundQuestion = await Question.findOne({ _id: question_id });
+    questionId = mongoose.Types.ObjectId(questionId);
+    const foundQuestion = await Question.findOne({ _id: questionId });
     foundQuestion.reported = true;
     const result = await foundQuestion.save();
+    return;
+  } catch (error) {
+    return error;
+  }
+}
+
+async function markAnswerHelpful(answerId) {
+  try {
+    const result = await Question.findOneAndUpdate(
+      { 'answers._id': answerId },
+      { $inc: { 'answers.$.helpfulness': 1 } }
+    );
+    return;
+  } catch (error) {
+    return error;
+  }
+}
+
+async function reportAnswer(answerId) {
+  try {
+    const result = await Question.findOneAndUpdate(
+      { 'answers._id': answerId },
+      { 'answers.$.reported': true }
+    );
     return;
   } catch (error) {
     return error;
@@ -192,4 +218,6 @@ module.exports = {
   addAnswer,
   markQuestionHelpful,
   reportQuestion,
+  markAnswerHelpful,
+  reportAnswer
 };
