@@ -1,6 +1,12 @@
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb://localhost:27017/sdcqa', {useNewUrlParser: true, useUnifiedTopology: true})
+const mongooseOptions = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useCreateIndex: true ,
+};
+
+mongoose.connect('mongodb://localhost:27017/sdcqa', mongooseOptions)
   .catch(err => {
     console.error('Error connecting to mongodb:', err);
   });
@@ -11,32 +17,29 @@ const photoSchema = new mongoose.Schema({
 
 const answerSchema = new mongoose.Schema({
   body: String,
-  date: Date,
+  date: { type: Date, default: Date.now },
   answerer_name: String,
   answerer_email: String,
-  helpfulness: Number,
+  helpfulness: {type: Number, default: 0 },
   photos: [photoSchema],
   photoUrls: [String],
-  reported: Boolean
+  reported: { type: Boolean, index: true, default: false }
 });
 
 const questionSchema = new mongoose.Schema({
   product_id: { type: String, index: true },
   question_body: String,
-  question_date: Date,
+  question_date: { type: Date, default: Date.now },
   asker_name: String,
   asker_email: String,
-  question_helpfulness: Number,
-  reported: { type: Boolean, index: true },
+  question_helpfulness: {type: Number, default: 0 },
+  reported: { type: Boolean, index: true, default: false },
   answers: [answerSchema]
 });
 
-questionSchema.virtual('question_id').get(function() {
-  return this._id;
-});
-
 const Question = mongoose.model('Question', questionSchema);
-
+// const Answer = mongoose.model('Answer', answerSchema);
+// const Photo = mongoose.model('Photo', photoSchema);
 
 async function listQuestions(product_id, page, count) {
 
@@ -75,16 +78,146 @@ async function listQuestions(product_id, page, count) {
         }
       }
     }}
-
-  ]
+  ];
 
   try {
     let docs = await Question.aggregate(pipeline);
     return docs;
   } catch (error) {
-    console.error(error);
+    return error;
+  }
+}
+
+async function listAnswers(question_id, page, count) {
+
+  const pipeline = [
+
+    { $match: {
+      _id: mongoose.Types.ObjectId(question_id),
+      reported: false
+    }},
+
+    { $unwind: { path: "$answers", preserveNullAndEmptyArrays: true } },
+
+    { $replaceRoot: {
+      newRoot: {
+        answer_id: "$answers._id",
+        body: "$answers.body",
+        date: "$answers.date",
+        answerer_name: "$answers.answerer_name",
+        helpfulness: "$answers.helpfulness",
+        photos: "$answers.photoUrls"
+      }
+    }}
+  ];
+
+  try {
+    let docs = await Question.aggregate(pipeline);
+    return docs;
+  } catch (error) {
+    return error;
   }
 
 }
 
-exports.listQuestions = listQuestions;
+async function addQuestion(questionDetails) {
+  try {
+    const newQuestion = new Question ({
+      product_id: questionDetails.product_id,
+      question_body: questionDetails.body,
+      asker_name: questionDetails.name,
+      asker_email: questionDetails.email,
+    });
+    const result = await newQuestion.save();
+    return;
+  } catch (error) {
+    return error;
+  }
+}
+
+async function addAnswer(questionId, answerDetails) {
+  try {
+
+    questionId = mongoose.Types.ObjectId(questionId);
+    const parentQuestion = await Question.findById(questionId);
+
+    const newAnswer = parentQuestion.answers.create({
+      body: answerDetails.body,
+      answerer_name: answerDetails.name,
+      answerer_email: answerDetails.email
+    });
+
+    answerDetails.photos.forEach(url => {
+      const newPhoto = newAnswer.photos.create({
+        url: url
+      });
+      newAnswer.photos.push(newPhoto);
+      newAnswer.photoUrls.push(url);
+    });
+
+    parentQuestion.answers.push(newAnswer);
+    const result = await parentQuestion.save();
+    return;
+  } catch (error) {
+    return error;
+  }
+}
+
+async function markQuestionHelpful(questionId) {
+  try {
+    questionId = mongoose.Types.ObjectId(questionId);
+    const foundQuestion = await Question.findOne({ _id: questionId });
+    foundQuestion.question_helpfulness = foundQuestion.question_helpfulness + 1;
+    const result = await foundQuestion.save();
+    return;
+  } catch (error) {
+    return error;
+  }
+}
+
+async function reportQuestion(questionId) {
+  try {
+    questionId = mongoose.Types.ObjectId(questionId);
+    const foundQuestion = await Question.findOne({ _id: questionId });
+    foundQuestion.reported = true;
+    const result = await foundQuestion.save();
+    return;
+  } catch (error) {
+    return error;
+  }
+}
+
+async function markAnswerHelpful(answerId) {
+  try {
+    const result = await Question.findOneAndUpdate(
+      { 'answers._id': answerId },
+      { $inc: { 'answers.$.helpfulness': 1 } }
+    );
+    return;
+  } catch (error) {
+    return error;
+  }
+}
+
+async function reportAnswer(answerId) {
+  try {
+    const result = await Question.findOneAndUpdate(
+      { 'answers._id': answerId },
+      { 'answers.$.reported': true }
+    );
+    return;
+  } catch (error) {
+    return error;
+  }
+}
+
+module.exports = {
+  listQuestions,
+  listAnswers,
+  addQuestion,
+  addAnswer,
+  markQuestionHelpful,
+  reportQuestion,
+  markAnswerHelpful,
+  reportAnswer
+};

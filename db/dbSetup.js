@@ -167,7 +167,7 @@ const answerPipeline = [
   { $unset: '_id' },
 
   { $project: {
-    answer_id: '$id',
+    legacy_answer_id: '$id',
     question_id: '$question_id',
     body: '$body',
     date: { $toDate: '$date_written' },
