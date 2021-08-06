@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
-const db = require('./db/models.js')
+const db = require('../db/models.js')
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
@@ -123,4 +123,5 @@ app.use((error, req, res, next) => {
   })
 })
 
-app.listen(3000)
+// app.listen(3000)
+module.exports = app
