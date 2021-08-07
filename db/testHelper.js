@@ -16,3 +16,4 @@ async function deleteAllQuestionsForProductId(product_id) {
 module.exports = {
   deleteAllQuestionsForProductId,
 };
+
