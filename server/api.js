@@ -1,7 +1,8 @@
 const express = require('express')
 const app = express()
+
 const bodyParser = require('body-parser')
-const db = require('./db/models.js')
+const db = require('../db/queries.js')
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
@@ -10,8 +11,8 @@ app.use(bodyParser.json())
 app.get('/qa/questions', async (req, res, next) => {
   try {
     let productId = req.query.product_id;
-    let pageNumber = Number(req.query.page);
-    let itemsPerPage = Number(req.query.count);
+    let pageNumber = !req.query.page ? 1 : Number(req.query.page);
+    let itemsPerPage = !req.query.count ? 5 : Number(req.query.count);
     const productQuestions = await db.listQuestions(productId, pageNumber, itemsPerPage);
     let responseBody = {};
     responseBody.product_id = productId;
@@ -26,8 +27,8 @@ app.get('/qa/questions', async (req, res, next) => {
 app.get('/qa/questions/:question_id/answers', async (req, res, next) => {
   try {
     let questionId = req.params.question_id;
-    let pageNumber = Number(req.query.page);
-    let itemsPerPage = Number(req.query.count);
+    let pageNumber = !req.query.page ? 1 : Number(req.query.page);
+    let itemsPerPage = !req.query.count ? 5 : Number(req.query.count);
     const questionAnswers = await db.listAnswers(questionId, pageNumber, itemsPerPage);
     let responseBody = {};
     responseBody.question = questionId;
@@ -123,4 +124,5 @@ app.use((error, req, res, next) => {
   })
 })
 
-app.listen(3000)
+// app.listen(3000)
+module.exports = app
