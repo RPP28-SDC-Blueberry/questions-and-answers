@@ -5,7 +5,7 @@
   "main": "api.js",
   "scripts": {
     "start": "nodemon ./server/start.js",
-    "test": "nyc --reporter=html --reporter=text mocha ./tests/api.test.js"
+    "test": "nyc --reporter=html --reporter=text mocha ./tests/*.test.js"
   },
   "repository": {
     "type": "git",
