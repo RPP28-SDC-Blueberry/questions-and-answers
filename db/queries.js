@@ -60,6 +60,8 @@ async function listAnswers(question_id, page, count) {
 
     { $unwind: { path: "$answers", preserveNullAndEmptyArrays: true } },
 
+    { $match: { "answers.reported": false }},
+
     { $replaceRoot: {
       newRoot: {
         answer_id: "$answers._id",

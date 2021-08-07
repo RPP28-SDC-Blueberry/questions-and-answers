@@ -59,7 +59,7 @@ describe('List questions', function() {
 
 describe('List answers', function() {
 
-  it('Should be 2 answer returned for a specific question', async function () {
+  it('Should be 2 answers returned for a specific question', async function () {
     const questionId = '610655218d6f85d5b6a1f1fe';
     const response = await request
       .get(`/qa/questions/${questionId}/answers`)
@@ -142,6 +142,138 @@ describe('Adds and updates', function() {
     expect(foundAnswer.body.results[0].photos).to.have.lengthOf(3);
     expect(foundAnswer.body.results[0].answerer_name).to.equal('douglas');
   })
+
+  it('Mark question helpful', async function () {
+
+    // find the question to mark as helpful
+    let foundQuestion = await request
+      .get('/qa/questions')
+      .query({ product_id: '500100'})
+    expect(foundQuestion.status).to.equal(200);
+    expect(foundQuestion.body.product_id).to.equal('500100');
+    expect(foundQuestion.body.results).to.have.lengthOf(1);
+
+    const questionId = foundQuestion.body.results[0].question_id;
+    const beforeHelpfulCount = foundQuestion.body.results[0].question_helpfulness;
+
+    const markedHelpful = await request
+      .put(`/qa/questions/${questionId}/helpful`)
+    expect(markedHelpful.status).to.equal(204);
+    expect(markedHelpful.body).to.be.empty;
+
+    // get the question again and test values
+    foundQuestion = await request
+      .get('/qa/questions')
+      .query({ product_id: '500100'})
+    expect(foundQuestion.status).to.equal(200);
+    expect(foundQuestion.body.product_id).to.equal('500100');
+    expect(foundQuestion.body.results).to.have.lengthOf(1);
+    expect(foundQuestion.body.results[0].question_helpfulness).to.equal(beforeHelpfulCount + 1);
+  })
+
+  it('Mark answer helpful', async function () {
+
+    this.timeout(6000); //ugh, need to address
+
+    // find the question with the answer
+    const foundQuestion = await request
+      .get('/qa/questions')
+      .query({ product_id: '500100'})
+    expect(foundQuestion.status).to.equal(200);
+    expect(foundQuestion.body.product_id).to.equal('500100');
+    expect(foundQuestion.body.results).to.have.lengthOf(1);
+
+    // get the answer for the question
+    const questionId = foundQuestion.body.results[0].question_id;
+    let foundAnswer = await request
+      .get(`/qa/questions/${questionId}/answers`)
+    expect(foundAnswer.status).to.equal(200);
+    expect(foundAnswer.body.question).to.equal(questionId);
+    expect(foundAnswer.body.results).to.have.lengthOf(1);
+
+    const answerId = foundAnswer.body.results[0].answer_id;
+    const beforeHelpfulCount = foundAnswer.body.results[0].helpfulness;
+
+    // mark the answer as helpful
+    const markedHelpful = await request
+      .put(`/qa/answers/${answerId}/helpful`)
+    expect(markedHelpful.status).to.equal(204);
+    expect(markedHelpful.body).to.be.empty;
+
+    // get the answer again and test values
+    foundAnswer = await request
+      .get(`/qa/questions/${questionId}/answers`)
+    expect(foundAnswer.status).to.equal(200);
+    expect(foundAnswer.body.question).to.equal(questionId);
+    expect(foundAnswer.body.results).to.have.lengthOf(1);
+    expect(foundAnswer.body.results[0].helpfulness).to.equal(beforeHelpfulCount + 1);
+  })
+
+  it('Report answer', async function () {
+
+    this.timeout(6000); //ugh, need to address
+
+    // find the question with the answer
+    const foundQuestion = await request
+      .get('/qa/questions')
+      .query({ product_id: '500100'})
+    expect(foundQuestion.status).to.equal(200);
+    expect(foundQuestion.body.product_id).to.equal('500100');
+    expect(foundQuestion.body.results).to.have.lengthOf(1);
+
+    // get the answer for the question
+    const questionId = foundQuestion.body.results[0].question_id;
+    let foundAnswer = await request
+      .get(`/qa/questions/${questionId}/answers`)
+    expect(foundAnswer.status).to.equal(200);
+    expect(foundAnswer.body.question).to.equal(questionId);
+    expect(foundAnswer.body.results).to.have.lengthOf(1);
+
+    const answerId = foundAnswer.body.results[0].answer_id;
+
+    // report the answer
+    const reportedAnswer = await request
+      .put(`/qa/answers/${answerId}/report`)
+    expect(reportedAnswer.status).to.equal(204);
+    expect(reportedAnswer.body).to.be.empty;
+
+    // attempt to get the answer but it should not return
+    foundAnswer = await request
+      .get(`/qa/questions/${questionId}/answers`)
+    expect(foundAnswer.status).to.equal(200);
+    expect(foundAnswer.body.question).to.equal(questionId);
+    expect(foundAnswer.body.results).to.have.lengthOf(0);
+  })
+
+  it('Report question', async function () {
+
+    this.timeout(6000); //ugh, need to address
+
+    // find the question
+    let foundQuestion = await request
+      .get('/qa/questions')
+      .query({ product_id: '500100'})
+    expect(foundQuestion.status).to.equal(200);
+    expect(foundQuestion.body.product_id).to.equal('500100');
+    expect(foundQuestion.body.results).to.have.lengthOf(1);
+
+    const questionId = foundQuestion.body.results[0].question_id;
+
+    // report the questoin
+    const reportedQuestion = await request
+      .put(`/qa/questions/${questionId}/report`)
+    expect(reportedQuestion.status).to.equal(204);
+    expect(reportedQuestion.body).to.be.empty;
+
+    // attempt to get the question but it should not return
+    foundQuestion = await request
+      .get('/qa/questions')
+      .query({ product_id: '500100'})
+    expect(foundQuestion.status).to.equal(200);
+    expect(foundQuestion.body.product_id).to.equal('500100');
+    expect(foundQuestion.body.results).to.have.lengthOf(0);
+  })
+
 
 });
 
