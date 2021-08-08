@@ -92,7 +92,7 @@ async function addQuestion(questionDetails) {
       asker_email: questionDetails.email,
     });
     const result = await newQuestion.save();
-    return;
+    return result._id;
   } catch (error) {
     return error;
   }
@@ -120,7 +120,7 @@ async function addAnswer(questionId, answerDetails) {
 
     parentQuestion.answers.push(newAnswer);
     const result = await parentQuestion.save();
-    return;
+    return result._id;
   } catch (error) {
     return error;
   }
