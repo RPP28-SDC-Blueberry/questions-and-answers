@@ -3,7 +3,7 @@ const supertest = require('supertest')
 const mongoose = require('mongoose')
 
 const app = require('../../server/api.js')
-const helper = require('../../db/testHelper.js')
+const helper = require('./testHelper.js')
 const request = supertest(app);
 
 before(function() {
