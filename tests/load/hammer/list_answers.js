@@ -1,6 +1,6 @@
 import http from 'k6/http';
+import { SharedArray } from "k6/data";
 import { sleep, check } from 'k6';
-
 
 export let options = {
   discardResponseBodies: true,
@@ -18,14 +18,17 @@ export let options = {
   },
 };
 
+var data = new SharedArray("questionIds", function() {
+  var f = JSON.parse(open("../helpers/q_ids.json"));
+  return f;
+});
+
 export default function () {
-
-  db.questions.find().limit(-1).skip(Math.random() * 1000000);
-
-  let res = http.get('http://localhost:3000/qa/questions/610656858d6f85d5b6b76b8e/answers?page=1&count=10');
+  var randomQuestion = data[Math.floor(Math.random() * data.length)];
+  var qId = randomQuestion.question_id;
+  let res = http.get(`http://localhost:3000/qa/questions/${qId}/answers`);
   check(res, {
     'is status 200': (r) => r.status === 200,
   });
   sleep(1);
-
 }

@@ -1,5 +1,6 @@
 import http from 'k6/http';
 import { sleep, check } from 'k6';
+import { generateRandomProductId } from '../helpers/helpers.js';
 
 export let options = {
   discardResponseBodies: true,
@@ -17,14 +18,8 @@ export let options = {
   },
 };
 
-function getRandomInt(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min) + min);
-}
-
 export default function () {
-  const productId = getRandomInt(900000, 1000000);
+  const productId = generateRandomProductId();
   let res = http.get(`http://localhost:3000/qa/questions?product_id=${productId}`);
   check(res, {
     'is status 200': (r) => r.status === 200,
