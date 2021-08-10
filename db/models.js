@@ -14,16 +14,19 @@ const answerSchema = new mongoose.Schema({
   photos: [photoSchema],
   photoUrls: [String],
   reported: { type: Boolean, index: true, default: false }
+  // reported: { type: Boolean, default: false }
 });
 
 const questionSchema = new mongoose.Schema({
   product_id: { type: String, index: true },
+  // product_id: { type: String },
   question_body: String,
   question_date: { type: Date, default: Date.now },
   asker_name: String,
   asker_email: String,
   question_helpfulness: {type: Number, default: 0 },
   reported: { type: Boolean, index: true, default: false },
+  // reported: { type: Boolean, default: false },
   answers: [answerSchema]
 });
 

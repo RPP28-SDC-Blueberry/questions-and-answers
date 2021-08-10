@@ -3,17 +3,14 @@ import { sleep, check } from 'k6';
 import { generateRandomProductId } from '../helpers/helpers.js';
 
 export let options = {
-  discardResponseBodies: true,
   scenarios: {
-    contacts: {
-      executor: 'ramping-vus',
-      startVUs: 0,
-      stages: [
-        { duration: '5s', target: 2500 },
-        { duration: '5s', target: 2500 },
-        { duration: '5s', target: 0 },
-      ],
-      gracefulRampDown: '5s',
+    constant_request_rate: {
+      executor: 'constant-arrival-rate',
+      rate: 1200,
+      timeUnit: '1s', // 1000 iterations per second, i.e. 1000 RPS
+      duration: '30s',
+      preAllocatedVUs: 500, // how large the initial pool of VUs would be
+      maxVUs: 1500, // if the preAllocatedVUs are not enough, we can initialize more
     },
   },
 };
