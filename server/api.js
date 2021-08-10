@@ -46,6 +46,7 @@ app.post('/qa/questions', async (req, res, next) => {
   try {
     let questionDetails = req.body;
     const newQuestion = await db.addQuestion(questionDetails);
+    res.append('Created-Record-Id', newQuestion);
     res.status(201).send();
   } catch (error) {
     next(error)
@@ -58,6 +59,7 @@ app.post('/qa/questions/:question_id/answers', async (req, res, next) => {
     let questionId = req.params.question_id;
     let answerDetails = req.body;
     const newAnswer = await db.addAnswer(questionId, answerDetails);
+    res.append('Created-Record-Id', newAnswer);
     res.status(201).send();
   } catch (error) {
     next(error)

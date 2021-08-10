@@ -1,9 +1,17 @@
 const expect = require('chai').expect;
-const app = require('../server/api.js')
 const supertest = require('supertest')
-const request = supertest(app);
 const mongoose = require('mongoose')
-const helper = require('../db/testHelper.js')
+
+const app = require('../../server/api.js')
+const helper = require('./testHelper.js')
+const request = supertest(app);
+
+before(function() {
+  if (process.env.NODE_ENV !== 'test') {
+    console.error('SKIPPING all tests because the NODE_ENV is not a test env\n');
+    this.skip();
+  }
+});
 
 after(async function() {
   const response = await helper.deleteAllQuestionsForProductId('500100');

@@ -1,6 +1,7 @@
+
 const mongoose = require('mongoose');
-const Question = require('./models.js')
-const db = require('./connection.js')
+const Question = require('../../db/models.js')
+const db = require('../../db/connection.js')
 
 // TESTING HELPERS
 

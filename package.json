@@ -4,8 +4,10 @@
   "description": "API for product questions and answers for project Atelier",
   "main": "api.js",
   "scripts": {
-    "start": "nodemon ./server/start.js",
-    "test": "nyc --reporter=html --reporter=text mocha ./tests/*.test.js"
+    "prod": "NODE_ENV=production nodemon ./server/start.js",
+    "start": "NODE_ENV=development nodemon ./server/start.js",
+    "test": "NODE_ENV=test nodemon ./server/start.js",
+    "mocha": "NODE_ENV=test nyc --reporter=html --reporter=text mocha ./tests/integration/*.test.js"
   },
   "repository": {
     "type": "git",

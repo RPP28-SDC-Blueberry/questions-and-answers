@@ -1,5 +1,5 @@
 node_modules
 .nyc_output
 coverage
-DELETE*
-
+db/ops/dump*
+tests/load/helpers/*.json
