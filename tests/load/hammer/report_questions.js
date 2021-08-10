@@ -9,8 +9,8 @@ export let options = {
       executor: 'ramping-vus',
       startVUs: 0,
       stages: [
-        { duration: '5s', target: 2500 },
-        { duration: '5s', target: 2500 },
+        { duration: '5s', target: 200 },
+        { duration: '5s', target: 200 },
         { duration: '5s', target: 0 },
       ],
       gracefulRampDown: '5s',
@@ -25,12 +25,14 @@ var data = new SharedArray("questionIds", function() {
 
 export default function () {
 
-  // pick a random question id from the list (data) and get all its answers
+  // pick a random question id from the list (data) and report it
   var randomQuestion = data[Math.floor(Math.random() * data.length)];
   var qId = randomQuestion.question_id;
-  let res = http.get(`http://localhost:3000/qa/questions/${qId}/answers`);
+  var url = `http://localhost:3000/qa/questions/${qId}/report`;
+
+  let res = http.put(url);
   check(res, {
-    'is status 200': (r) => r.status === 200,
+    'is status 204': (r) => r.status === 204,
   });
   sleep(1);
 }

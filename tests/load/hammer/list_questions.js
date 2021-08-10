@@ -19,6 +19,8 @@ export let options = {
 };
 
 export default function () {
+
+  // generate a random product id and get all of the questions it
   const productId = generateRandomProductId();
   let res = http.get(`http://localhost:3000/qa/questions?product_id=${productId}`);
   check(res, {

@@ -20,6 +20,7 @@ export let options = {
 
 export default function () {
 
+  // generate a random product id and add a question for it
   var productId = generateRandomProductId();
   var url = 'http://localhost:3000/qa/questions';
   var payload = JSON.stringify({
@@ -33,7 +34,7 @@ export default function () {
     headers: { 'Content-Type': 'application/json' },
   };
 
-  let res = http.post('http://localhost:3000/qa/questions')
+  let res = http.post(url, payload, params);
   check(res, {
     'is status 201': (r) => r.status === 201,
   });
