@@ -6,9 +6,9 @@ export let options = {
   scenarios: {
     constant_request_rate: {
       executor: 'constant-arrival-rate',
-      rate: 1100,
       timeUnit: '1s', // 1000 iterations per second, i.e. 1000 RPS
       duration: '30s',
+      rate: 1000,
       preAllocatedVUs: 500, // how large the initial pool of VUs would be
       maxVUs: 1500, // if the preAllocatedVUs are not enough, we can initialize more
     },

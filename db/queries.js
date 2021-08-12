@@ -11,6 +11,10 @@ async function listQuestions(product_id, page, count) {
       reported: false
     }},
 
+    { $skip: (page - 1) * count },
+
+    { $limit: count },
+
     { $project: {
       _id: 0,
       question_id: "$_id",
@@ -61,6 +65,10 @@ async function listAnswers(question_id, page, count) {
     { $unwind: { path: "$answers", preserveNullAndEmptyArrays: true } },
 
     { $match: { "answers.reported": false }},
+
+    { $skip: (page - 1) * count },
+
+    { $limit: count },
 
     { $replaceRoot: {
       newRoot: {

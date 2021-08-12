@@ -6,12 +6,12 @@ const app = require('../../server/api.js')
 const helper = require('./testHelper.js')
 const request = supertest(app);
 
-before(function() {
-  if (process.env.NODE_ENV !== 'test') {
-    console.error('SKIPPING all tests because the NODE_ENV is not a test env\n');
-    this.skip();
-  }
-});
+// before(function() {
+//   if (process.env.NODE_ENV !== 'test') {
+//     console.error('SKIPPING all tests because the NODE_ENV is not a test env\n');
+//     this.skip();
+//   }
+// });
 
 after(async function() {
   const response = await helper.deleteAllQuestionsForProductId('500100');
@@ -93,7 +93,7 @@ describe('Adds and updates', function() {
   it('Add a question', async function () {
 
     const newQuestion = {
-      "product_id": '500100',
+      "product_id": "500100",
       "body": "Is it from France?",
       "name": "lincoln",
       "email": "iamlincoln@mailinator.com"
@@ -115,10 +115,13 @@ describe('Adds and updates', function() {
 
   it('Add an answer', async function () {
 
+    const productId = '500100';
+    let foundQuestion;
+
     // find the question to add an answer to
-    const foundQuestion = await request
+    foundQuestion = await request
       .get('/qa/questions')
-      .query({ product_id: '500100'})
+      .query({ product_id: productId })
     expect(foundQuestion.status).to.equal(200);
     expect(foundQuestion.body.product_id).to.equal('500100');
     expect(foundQuestion.body.results).to.have.lengthOf(1);
@@ -149,6 +152,16 @@ describe('Adds and updates', function() {
     expect(foundAnswer.body.results).to.have.lengthOf(1);
     expect(foundAnswer.body.results[0].photos).to.have.lengthOf(3);
     expect(foundAnswer.body.results[0].answerer_name).to.equal('douglas');
+
+    // confirm that search still works for the question
+    // this test exists because if the question is malformed, list_questions will break (trust me)
+    foundQuestion = await request
+      .get('/qa/questions')
+      .query({ product_id: '500100'})
+    expect(foundQuestion.status).to.equal(200);
+    expect(foundQuestion.body.product_id).to.equal('500100');
+    expect(foundQuestion.body.results).to.have.lengthOf(1);
+
   })
 
   it('Mark question helpful', async function () {
