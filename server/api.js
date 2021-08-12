@@ -11,8 +11,8 @@ app.use(bodyParser.json())
 app.get('/qa/questions', async (req, res, next) => {
   try {
     let productId = req.query.product_id;
-    let pageNumber = !req.query.page ? 1 : Number(req.query.page);
-    let itemsPerPage = !req.query.count ? 5 : Number(req.query.count);
+    let pageNumber = !req.query.page ? 1 : Math.max(Number(req.query.page), 1);
+    let itemsPerPage = !req.query.count ? 5 : Math.max(Number(req.query.count), 0);
     const productQuestions = await db.listQuestions(productId, pageNumber, itemsPerPage);
     let responseBody = {};
     responseBody.product_id = productId;
@@ -27,8 +27,8 @@ app.get('/qa/questions', async (req, res, next) => {
 app.get('/qa/questions/:question_id/answers', async (req, res, next) => {
   try {
     let questionId = req.params.question_id;
-    let pageNumber = !req.query.page ? 1 : Number(req.query.page);
-    let itemsPerPage = !req.query.count ? 5 : Number(req.query.count);
+    let pageNumber = !req.query.page ? 1 : Math.max(Number(req.query.page), 1);
+    let itemsPerPage = !req.query.count ? 5 : Math.max(Number(req.query.count), 1);
     const questionAnswers = await db.listAnswers(questionId, pageNumber, itemsPerPage);
     let responseBody = {};
     responseBody.question = questionId;
