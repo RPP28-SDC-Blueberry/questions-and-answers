@@ -4,7 +4,7 @@
   "description": "API for product questions and answers for project Atelier",
   "main": "api.js",
   "scripts": {
-    "prod": "NODE_ENV=production nodemon ./server/start.js",
+    "prod": "NODE_ENV=production node ./server/start.js",
     "start": "NODE_ENV=development nodemon ./server/start.js",
     "test": "NODE_ENV=test nodemon ./server/start.js",
     "mocha": "NODE_ENV=test nyc --reporter=html --reporter=text mocha ./tests/integration/*.test.js"
@@ -21,12 +21,13 @@
   "homepage": "https://github.com/RPP28-SDC-Blueberry/questions-and-answers#readme",
   "devDependencies": {
     "chai": "^4.3.4",
-    "express": "^4.17.1",
     "jest": "^27.0.6",
     "mocha": "^9.0.3",
-    "mongoose": "^5.13.2",
     "nyc": "^15.1.0",
     "supertest": "^6.1.4"
   },
-  "dependencies": {}
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongoose": "^5.13.2"
+  }
 }

@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  db:
+    image: mongo:4.4-focal
+    #command: --wiredTigerCacheSizeGB 0.5
+    volumes:
+      - data:/data/db
+      - backup:/sdcqa-mongodb-data-backup
+    ports:
+      - "27017:27017"
+
+volumes:
+  data:
+    name: sdcqa-mongodb-data
+  backup:
+    name: sdcqa-mongodb-data-backup

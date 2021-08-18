@@ -1,0 +1,10 @@
+.nyc_output
+coverage
+db/ops
+node_modules
+tests
+.gitignore
+docker-compose.yml
+Dockerfile*
+README.md
+

@@ -7,6 +7,10 @@ const db = require('../db/queries.js')
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
+app.get('/', (req, res, next) => {
+  res.send('Whazzup');
+})
+
 // list questions
 app.get('/qa/questions', async (req, res, next) => {
   try {

@@ -1,0 +1,7 @@
+version: "3.9"
+
+services:
+  web:
+    image: kingsleyallen/sdcqa-server:1.0
+    ports:
+      - "80:3000"
