@@ -7,21 +7,25 @@ const db = require('../db/queries.js')
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
-app.get('/', (req, res, next) => {
-  res.send('Whazzup');
+app.get('/loaderio-7c9e36043b78a137b019adef8c409c2e', (req, res, next) => {
+  res.send('loaderio-7c9e36043b78a137b019adef8c409c2e');
 })
 
 // list questions
 app.get('/qa/questions', async (req, res, next) => {
   try {
     let productId = req.query.product_id;
-    let pageNumber = !req.query.page ? 1 : Math.max(Number(req.query.page), 1);
-    let itemsPerPage = !req.query.count ? 5 : Math.max(Number(req.query.count), 0);
-    const productQuestions = await db.listQuestions(productId, pageNumber, itemsPerPage);
-    let responseBody = {};
-    responseBody.product_id = productId;
-    responseBody.results = productQuestions;
-    res.send(responseBody);
+    if (!productId) {
+      res.status(404).send();
+    } else {
+      let pageNumber = !req.query.page ? 1 : Math.max(Number(req.query.page), 1);
+      let itemsPerPage = !req.query.count ? 5 : Math.max(Number(req.query.count), 0);
+      const productQuestions = await db.listQuestions(productId, pageNumber, itemsPerPage);
+      let responseBody = {};
+      responseBody.product_id = productId;
+      responseBody.results = productQuestions;
+      res.send(responseBody);
+    }
   } catch (error) {
     next(error)
   }
@@ -31,15 +35,19 @@ app.get('/qa/questions', async (req, res, next) => {
 app.get('/qa/questions/:question_id/answers', async (req, res, next) => {
   try {
     let questionId = req.params.question_id;
-    let pageNumber = !req.query.page ? 1 : Math.max(Number(req.query.page), 1);
-    let itemsPerPage = !req.query.count ? 5 : Math.max(Number(req.query.count), 1);
-    const questionAnswers = await db.listAnswers(questionId, pageNumber, itemsPerPage);
-    let responseBody = {};
-    responseBody.question = questionId;
-    responseBody.page = pageNumber;
-    responseBody.count = itemsPerPage;  // Matches the Atelier API behavior
-    responseBody.results = questionAnswers;
-    res.send(responseBody);
+    if (!questionId) {
+      res.status(404).send();
+    } else {
+      let pageNumber = !req.query.page ? 1 : Math.max(Number(req.query.page), 1);
+      let itemsPerPage = !req.query.count ? 5 : Math.max(Number(req.query.count), 1);
+      const questionAnswers = await db.listAnswers(questionId, pageNumber, itemsPerPage);
+      let responseBody = {};
+      responseBody.question = questionId;
+      responseBody.page = pageNumber;
+      responseBody.count = itemsPerPage;  // Matches the Atelier API behavior
+      responseBody.results = questionAnswers;
+      res.send(responseBody);
+    }
   } catch (error) {
     next(error)
   }

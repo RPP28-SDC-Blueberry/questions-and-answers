@@ -3,3 +3,4 @@ node_modules
 coverage
 db/ops/dump*
 tests/load/helpers/*.json
+.DS_Store*
