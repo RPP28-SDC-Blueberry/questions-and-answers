@@ -4,7 +4,8 @@ const mongooseConnectionOptions = {
   useCreateIndex: true,
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  useFindAndModify: false
+  useFindAndModify: false,
+  poolSize: 10
 };
 
 let db;

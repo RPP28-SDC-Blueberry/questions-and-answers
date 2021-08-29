@@ -10,7 +10,7 @@ export let options = {
       duration: '30s',
       rate: 1000,
       preAllocatedVUs: 500, // how large the initial pool of VUs would be
-      maxVUs: 1500, // if the preAllocatedVUs are not enough, we can initialize more
+      maxVUs: 2000, // if the preAllocatedVUs are not enough, we can initialize more
     },
   },
 };
