@@ -3,7 +3,6 @@ const app = express()
 
 const bodyParser = require('body-parser')
 const db = require('../db/queries.js')
-const redis = require('../redis/redis.js')
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
@@ -15,19 +14,13 @@ app.get('/qa/questions', async (req, res, next) => {
     if (!productId) {
       res.status(404).send();
     } else {
-      const redisRecord = await redis.get(req.url);
-      if (redisRecord) {
-        res.send(JSON.parse(redisRecord));
-      } else {
-        let pageNumber = !req.query.page ? 1 : Math.max(Number(req.query.page), 1);
-        let itemsPerPage = !req.query.count ? 5 : Math.max(Number(req.query.count), 0);
-        const productQuestions = await db.listQuestions(productId, pageNumber, itemsPerPage);
-        let responseBody = {};
-        responseBody.product_id = productId;
-        responseBody.results = productQuestions;
-        const setRedis = await redis.set(req.url, JSON.stringify(responseBody));
-        res.send(responseBody);
-      }
+      let pageNumber = !req.query.page ? 1 : Math.max(Number(req.query.page), 1);
+      let itemsPerPage = !req.query.count ? 5 : Math.max(Number(req.query.count), 0);
+      const productQuestions = await db.listQuestions(productId, pageNumber, itemsPerPage);
+      let responseBody = {};
+      responseBody.product_id = productId;
+      responseBody.results = productQuestions;
+      res.send(responseBody);
     }
    } catch (error) {
     next(error)
@@ -41,48 +34,20 @@ app.get('/qa/questions/:question_id/answers', async (req, res, next) => {
     if (!questionId) {
       res.status(404).send();
     } else {
-      const redisRecord = await redis.get(req.url);
-      if (redisRecord) {
-        res.send(JSON.parse(redisRecord));
-      } else {
-        let pageNumber = !req.query.page ? 1 : Math.max(Number(req.query.page), 1);
-        let itemsPerPage = !req.query.count ? 5 : Math.max(Number(req.query.count), 1);
-        const questionAnswers = await db.listAnswers(questionId, pageNumber, itemsPerPage);
-        let responseBody = {};
-        responseBody.question = questionId;
-        responseBody.page = pageNumber;
-        responseBody.count = itemsPerPage;  // Matches the Atelier API behavior
-        responseBody.results = questionAnswers;
-        const setRedis = await redis.set(req.url, JSON.stringify(responseBody));
-        res.send(responseBody);
-      }
+      let pageNumber = !req.query.page ? 1 : Math.max(Number(req.query.page), 1);
+      let itemsPerPage = !req.query.count ? 5 : Math.max(Number(req.query.count), 1);
+      const questionAnswers = await db.listAnswers(questionId, pageNumber, itemsPerPage);
+      let responseBody = {};
+      responseBody.question = questionId;
+      responseBody.page = pageNumber;
+      responseBody.count = itemsPerPage;  // Matches the Atelier API behavior
+      responseBody.results = questionAnswers;
+      res.send(responseBody);
     }
   } catch (error) {
     next(error)
   }
 });
-
-// // list answers
-// app.get('/qa/questions/:question_id/answers', async (req, res, next) => {
-//   try {
-//     let questionId = req.params.question_id;
-//     if (!questionId) {
-//       res.status(404).send();
-//     } else {
-//       let pageNumber = !req.query.page ? 1 : Math.max(Number(req.query.page), 1);
-//       let itemsPerPage = !req.query.count ? 5 : Math.max(Number(req.query.count), 1);
-//       const questionAnswers = await db.listAnswers(questionId, pageNumber, itemsPerPage);
-//       let responseBody = {};
-//       responseBody.question = questionId;
-//       responseBody.page = pageNumber;
-//       responseBody.count = itemsPerPage;  // Matches the Atelier API behavior
-//       responseBody.results = questionAnswers;
-//       res.send(responseBody);
-//     }
-//   } catch (error) {
-//     next(error)
-//   }
-// });
 
 // add a question
 app.post('/qa/questions', async (req, res, next) => {
