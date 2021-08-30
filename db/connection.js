@@ -5,7 +5,7 @@ const mongooseConnectionOptions = {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useFindAndModify: false,
-  poolSize: 10
+  poolSize: 5
 };
 
 let db;
